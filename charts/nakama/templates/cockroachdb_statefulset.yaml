@@ -1,0 +1,62 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: {{ include "nakama-helm-chart.fullname" . }}-db
+  labels:
+    statefulset: db
+spec:
+  serviceName: "db"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      volumes:
+      - name: db-vol
+        emptyDir:
+          medium: "Memory"
+      containers:
+        - name: cockroachdb
+          image: cockroachdb/cockroach:v19.2.2
+          ports:
+          - containerPort: 26257
+            name: grpc
+          - containerPort: 8080
+            name: http
+          volumeMounts:
+          - name: db-vol
+            mountPath: /data
+          resources:
+            requests:
+              memory: "512Mi"
+            limits:
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: "/health?ready=1"
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 2
+          command:
+          - "/bin/bash"
+          - "-ecx"
+          - >
+            exec /cockroach/cockroach start
+            --store=path=/data,size=50GiB
+            --logtostderr=WARNING --no-color
+            --insecure
+            --advertise-host $(hostname -f)
+            --http-host 0.0.0.0
+  updateStrategy:
+    type: RollingUpdate

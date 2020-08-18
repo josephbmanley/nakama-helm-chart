@@ -1,0 +1,8 @@
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+
+nakama:
+  adminport: 80
+  image: heroiclabs/nakama

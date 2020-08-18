@@ -1,0 +1,61 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ include "nakama-helm-chart.fullname" . }}-nakama
+  labels:
+    deployment: {{ include "nakama-helm-chart.fullname" . }}-nakama
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: {{ include "nakama-helm-chart.fullname" . }}-nakama
+  template:
+    metadata:
+      labels:
+        app: {{ include "nakama-helm-chart.fullname" . }}-nakama
+    spec:
+      containers:
+        - image: {{ .Values.nakama.image }}
+          name: nakama
+          imagePullPolicy: IfNotPresent
+          command:
+          - "/bin/sh"
+          - "-ecx"
+          - >
+            ./nakama migrate up --database.address $(DATABASE_ADDRESS) &&
+            exec ./nakama --database.address $(DATABASE_ADDRESS)
+          env:
+            - name: "DATABASE_ADDRESS"
+              value: "root@{{ include "nakama-helm-chart.fullname" . }}-db:26257/DEFAULT"
+          ports:
+            - containerPort: 7350
+              name: api
+            - containerPort: 7351
+              name: devapi
+            - containerPort: 7349
+              name: grpc
+            - containerPort: 7348
+              name: devgrpc
+          resources:
+            requests:
+              memory: "512Mi"
+            limits:
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 7350
+            initialDelaySeconds: 20
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 7350
+            initialDelaySeconds: 20
+            periodSeconds: 3
