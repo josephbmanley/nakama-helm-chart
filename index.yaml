@@ -3,6 +3,16 @@ entries:
   nakama-helm-chart:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2020-08-18T05:49:57.403114625Z"
+    description: A Helm chart for Kubernetes
+    digest: 1c0e1e072f5b1ac78bea7298c118677c16f2c092425e3c5de2945e31c4a45a24
+    name: nakama-helm-chart
+    type: application
+    urls:
+    - https://github.com/josephbmanley/nakama-helm-chart/releases/download/nakama-helm-chart-0.1.2/nakama-helm-chart-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2020-08-18T05:44:29.615614938Z"
     description: A Helm chart for Kubernetes
     digest: bfe7f112aa451e7e781da3d560c4310190c4b8b1e2cd3d42ad59aec112771e47
